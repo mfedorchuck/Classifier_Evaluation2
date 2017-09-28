@@ -27,13 +27,13 @@ fprintf('Time: %02s \n', datestr(now, 'HH:MM:SS')); fprintf('\n');
 disp('DIBCO dataset 2009');
 
 % number of images you want to test
-NumIm = 3; %DIBCO09 dataset consist of 10 images - 5 printed and 5 - handwritten
+NumIm = 10; %DIBCO09 dataset consist of 10 images - 5 printed and 5 - handwritten
 
 % path for test images
 ImPath = sprintf('C:/From DropBox/Code and Description/Data_For_Test/DIBCO09/');
 
 for NumOfImage = 1:NumIm
-   fprintf('Case number %d in progress...\n', NumOfImage);
+	fprintf('Case number %d in progress...\n', NumOfImage);
 
     ImName = sprintf('%d.bmp', NumOfImage);
     GTName = sprintf('%d.tiff', NumOfImage);
@@ -42,6 +42,7 @@ for NumOfImage = 1:NumIm
     GTImage = imread(sprintf('%s%s', ImPath, GTName));
 
     GrayTestImage = rgb2gray(TestImage);
+      
     [N, M] = size(GrayTestImage);
 
     fprintf('Size of current image is %d x %d \n', N, M);
@@ -103,6 +104,7 @@ disp(sortrows(StatEvaluationTable,'St_F1_score','descend'));
 %     BinarizedByO, BinarizedByAdaptT2, BinarizedByNiblack, BinarizedByKittler,...
 %     BinarizedByBrensen, BinarizedByBradely, BinarizedByGatos);
 
+fprintf('\n Now "Reference Method" are performing (and using every image as a reference):\n');
 [RefArr, AlternativeRefArr] = CompByRef(ArrOfValues);
 
 %disp('GT based measurements:'); disp(ComparizeGTTable);
@@ -160,7 +162,11 @@ EditARef_distance(NumOfImage) = EditDistance(Word_AltRef,Word_GT_FM);
 OrdCorrPsFM(NumOfImage) = corr2(SortedGTTable.num, SortedStatTable.num);
 OrdCorrAltRef(NumOfImage) = corr2(SortedGTTable.num, SortedAltRef.num);
 
+
 PlaineCorrPsFM(NumOfImage) = corr2(ComparizeGTTable.F1_score, StatEvaluationTable.St_F1_score);
+PlaineCorrPsNCC(NumOfImage) = corr2(ComparizeGTTable.CrossCorr, StatEvaluationTable.StCrossCorr);
+PlaineCorrPsPSNR(NumOfImage) = corr2(ComparizeGTTable.PSNR, StatEvaluationTable.StPSNR);
+PlaineCorrPsNRM(NumOfImage) = corr2(ComparizeGTTable.NRM, StatEvaluationTable.StNRM);
 
 clear NewRefAltArr
 clear TwoDrefAltArr
@@ -169,30 +175,27 @@ fprintf('Case number %d complete\n', NumOfImage);
 fprintf('Time: %02s \n\n', datestr(now, 'HH:MM:SS'));
 end
 
-    DIBCO = 1; %Equal one only if you test only one dataset
-    
-    disp('*************** Average sequence alignment cost through dataset ***************');
-    AvPsFMDistance(DIBCO) = sum(Ps_FM_Distance, 'omitnan') / NumIm;
-    AvAltRefDistance(DIBCO) = sum(Alt_Ref_Distance, 'omitnan') / NumIm;
-    
-    fprintf('\nAverage sequence alignment cost between order given by F-Measure and Pseudo F-Measure: %.4g \n', AvPsFMDistance(DIBCO));
-    fprintf('Average sequence alignment cost between order given by F-Measure and Reference Method: %.4g \n', AvAltRefDistance(DIBCO));
-    
-    disp('*************** Average word-edit distance through dataset ***************');
-    AvRefWordDistance(DIBCO) = sum(EditPS_FM_distance, 'omitnan') / NumIm;
-    AvPsFMWordDistance(DIBCO) = sum(EditARef_distance, 'omitnan') / NumIm;
-    
-    fprintf('\nAverage word-edit distance between order given by F-Measure and Pseudo F-Measure: %.4g \n', AvRefWordDistance(DIBCO));
-    fprintf('Average word-edit distance between order given by F-Measure and Reference Method: %.4g \n', AvPsFMWordDistance(DIBCO));
-    
-    disp('*************** Average correlation of algorithm`s order through dataset ***************');
-    AvgCorrelationOfPsFM(DIBCO) = sum(OrdCorrPsFM, 'omitnan') / NumIm;
-    AvgCorrCorrAltRefGT(DIBCO) = sum(OrdCorrAltRef, 'omitnan') / NumIm;
-    
-    fprintf('\nAverage correlation of algorithm`s order between order given by F-Measure and Pseudo F-Measure: %.4g \n', AvgCorrelationOfPsFM(DIBCO));
-    fprintf('Average correlation of algorithm`s order between order given by F-Measure and Reference Method: %.4g \n', AvgCorrCorrAltRefGT(DIBCO));
-        
-%     disp('*************** Average correlation of algorithm`s marks ***************');
-%     AvCorrMarksPsFM(DIBCO) = mean(PlaineCorrPsFM, 'omitnan');
-%     AvCorrMarksRef(DIBCO) = mean(PlaineCorrRefGT, 'omitnan');
-%     AvCorrMarksGTRef(DIBCO) = mean(PlaineCorrAltRefGT, 'omitnan');
+AvPsFMDistance = sum(Ps_FM_Distance, 'omitnan') / NumIm;
+AvAltRefDistance = sum(Alt_Ref_Distance, 'omitnan') / NumIm;
+fprintf('\n\nAverage sequence alignment cost between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvPsFMDistance);
+fprintf('Average sequence alignment cost between order given by\n F-Measure and Reference Method: %.4g \n', AvAltRefDistance);
+
+AvRefWordDistance = sum(EditPS_FM_distance, 'omitnan') / NumIm;
+AvPsFMWordDistance = sum(EditARef_distance, 'omitnan') / NumIm;
+fprintf('\n\nAverage word-edit distance between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvRefWordDistance);
+fprintf('Average word-edit distance between order given by\n F-Measure and Reference Method: %.4g \n', AvPsFMWordDistance);
+
+AvgCorrelationOfPsFM = sum(OrdCorrPsFM, 'omitnan') / NumIm;
+AvgCorrCorrAltRefGT = sum(OrdCorrAltRef, 'omitnan') / NumIm;
+fprintf('\n\nAverage correlation of algorithm`s order between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvgCorrelationOfPsFM);
+fprintf('Average correlation of algorithm`s order between order given by\n F-Measure and Reference Method: %.4g \n', AvgCorrCorrAltRefGT);
+
+AvgCorrPsFM = sum(PlaineCorrPsFM, 'omitnan') / NumIm;
+AvgCorrPsNCC = sum(PlaineCorrPsNCC, 'omitnan') / NumIm;
+AvgCorrPsPSNR = sum(PlaineCorrPsPSNR, 'omitnan') / NumIm;
+AvgCorrPsNRM = sum(PlaineCorrPsNRM, 'omitnan') / NumIm;
+
+fprintf('\n\nAverage correlation and standad deviation of Pseudo-Metrics and GT-based metrics (between the values):\n\n');
+fprintf('Pseudo F-Measure\tPseudo NCC\t\tPseudo PSNR\t\tPseudo NRM\n');
+fprintf('%.4g\t\t\t\t%.4g\t\t\t%.4g\t\t\t%.4g\n', AvgCorrPsFM, AvgCorrPsNCC, AvgCorrPsPSNR, AvgCorrPsNRM);
+fprintf('%.4g\t\t\t\t%.4g\t\t\t%.4g\t\t\t%.4g\n\n', std(PlaineCorrPsFM), std(PlaineCorrPsNCC), std(PlaineCorrPsPSNR), std(PlaineCorrPsNRM));
