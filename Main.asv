@@ -149,7 +149,7 @@ SortedGTTable.num = abc2(:); SortedGTTable = sortrows(SortedGTTable, 'initial_co
 SortedStatTable.num = abc2(:); SortedStatTable = sortrows(SortedStatTable, 'initial_code', 'ascend');
 SortedAltRef.num = abc2(:); SortedAltRef = sortrows(SortedAltRef, 'initial_code', 'ascend');
 
-%% Comparing words distance and sequence alignment cost between the applied evaluation methods
+%% Comparing words distance of methods
 
 Ps_FM_Distance(NumOfImage) = SeqAlignCost(Word_Ps_FM, Word_GT_FM);
 Alt_Ref_Distance(NumOfImage) = SeqAlignCost(Word_AltRef, Word_GT_FM);
@@ -175,11 +175,18 @@ fprintf('Case number %d complete\n', NumOfImage);
 fprintf('Time: %02s \n\n', datestr(now, 'HH:MM:SS'));
 end
 
-GetDifference(NumIm, Ps_FM_Distance, Alt_Ref_Distance, EditPS_FM_distance, EditARef_distance);
-% Later - change and pack both (reference dist and PsFm dist) in one array!
-% Like: 
-% WordDist(1, NumOfImage) = EditDistance(Word_Ps_FM, Word_GT_FM);
-% WordDist(2, NumOfImage) = EditDistance(Word_AltRef, Word_GT_FM);
+GetDifference(NumIm, Ps_FM_Distance, Alt_Ref_Distance, EditPS_FM_distance);
+
+
+AvPsFMDistance = sum(Ps_FM_Distance, 'omitnan') / NumIm;
+AvAltRefDistance = sum(Alt_Ref_Distance, 'omitnan') / NumIm;
+fprintf('\n\nAverage sequence alignment cost between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvPsFMDistance);
+fprintf('Average sequence alignment cost between order given by\n F-Measure and Reference Method: %.4g \n', AvAltRefDistance);
+
+AvRefWordDistance = sum(EditPS_FM_distance, 'omitnan') / NumIm;
+AvPsFMWordDistance = sum(EditARef_distance, 'omitnan') / NumIm;
+fprintf('\n\nAverage word-edit distance between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvRefWordDistance);
+fprintf('Average word-edit distance between order given by\n F-Measure and Reference Method: %.4g \n', AvPsFMWordDistance);
 
 AvgCorrelationOfPsFM = sum(OrdCorrPsFM, 'omitnan') / NumIm;
 AvgCorrCorrAltRefGT = sum(OrdCorrAltRef, 'omitnan') / NumIm;
