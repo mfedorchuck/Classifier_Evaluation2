@@ -27,7 +27,7 @@ fprintf('Time: %02s \n', datestr(now, 'HH:MM:SS')); fprintf('\n');
 disp('DIBCO dataset 2009');
 
 % number of images you want to test
-NumIm = 10; %DIBCO09 dataset consist of 10 images - 5 printed and 5 - handwritten
+NumIm = 3; %DIBCO09 dataset consist of 10 images - 5 printed and 5 - handwritten
 
 % path for test images
 ImPath = sprintf('C:/From DropBox/Code and Description/Data_For_Test/DIBCO09/');
@@ -91,43 +91,17 @@ for NumOfImage = 1:NumIm
 %% ************************* Evaluation metrics ***************************
 
 % Ground-Truth based evaluation metrics
+fprintf('\n All the clasifiers, ranged according to traditionally-based metrics (Ground-Truth based):\n');
 ComparizeGTTable = ComparisingWithGT(GTImage, TableOfNames, ArrOfValues);
-fprintf('\n Best clasifiers according to Ground-Truth based evaluation metrics:\n');
 disp(sortrows(ComparizeGTTable,'F1_score','descend'));
 
 % Statistically-based evaluation metrics
+fprintf('\n All the clasifiers, ranged according to statistically based metrics:\n');
 StatEvaluationTable = StatMeasure(TableOfNames, ArrOfValues);
-fprintf('\n Best clasifiers according to Statistically based evaluation metrics:\n');
 disp(sortrows(StatEvaluationTable,'St_F1_score','descend'));
 
-% BinarizedByWolf, BinarizedByAdaptT, BinarizedBySau,...
-%     BinarizedByO, BinarizedByAdaptT2, BinarizedByNiblack, BinarizedByKittler,...
-%     BinarizedByBrensen, BinarizedByBradely, BinarizedByGatos);
-
 fprintf('\n Now "Reference Method" are performing (and using every image as a reference):\n');
-[RefArr, AlternativeRefArr] = CompByRef(ArrOfValues);
-
-%disp('GT based measurements:'); disp(ComparizeGTTable);
-%disp('Statistically-based measurements:'); disp(StatEvaluationTable);
-
-% writetable(ComparizeGTTable, 'testdata.xlsx', 'Sheet', NumOfImage, 'Range', 'A2', 'WriteRowNames', 1);
-% writetable(StatEvaluationTable, 'testdata.xlsx', 'Sheet', NumOfImage, 'Range', 'I2', 'WriteRowNames', 1);
-
-% disp('best clasifiers according to Pseudo-Metrics'); disp(SortedStatTable(:,:));
-% disp('best clasifiers according to GT'); disp(SortedGTTable(:,:));
-
-%% Extract ranged array by usimg RefMetrics, Pseudo-metrics and GT-based metrics
-
-NewRefAltArr(:,:) = zeros(10);
-
-for ii = 1:length(TableOfNames)
-        TwoDrefAltArr(:,:) = AlternativeRefArr(ii,:,:);
-        NewRefAltArr(:,:) = TwoDrefAltArr(:,:) + NewRefAltArr(:,:); 
-end
-
-for jj = 1:length(TableOfNames)
-    NewRefAltArr(jj,length(TableOfNames) + 1) = sum(NewRefAltArr(jj,:));
-end
+NewRefAltArr = CompByRef(ArrOfValues, length(TableOfNames));
 
 %% Tables construction
 
@@ -150,23 +124,20 @@ SortedStatTable.num = abc2(:); SortedStatTable = sortrows(SortedStatTable, 'init
 SortedAltRef.num = abc2(:); SortedAltRef = sortrows(SortedAltRef, 'initial_code', 'ascend');
 
 %% Comparing words distance and sequence alignment cost between the applied evaluation methods
+WordDist(1, NumOfImage) = SeqAlignCost(Word_Ps_FM, Word_GT_FM);
+WordDist(2, NumOfImage) = SeqAlignCost(Word_AltRef, Word_GT_FM);
 
-Ps_FM_Distance(NumOfImage) = SeqAlignCost(Word_Ps_FM, Word_GT_FM);
-Alt_Ref_Distance(NumOfImage) = SeqAlignCost(Word_AltRef, Word_GT_FM);
-
-EditPS_FM_distance(NumOfImage) = EditDistance(Word_Ps_FM,Word_GT_FM);
-EditARef_distance(NumOfImage) = EditDistance(Word_AltRef,Word_GT_FM);
+SeqenceCost(1, NumOfImage) = EditDistance(Word_Ps_FM,Word_GT_FM);
+SeqenceCost(2, NumOfImage) = EditDistance(Word_AltRef,Word_GT_FM);
 
 %% Correlation of marks
+OrdCorr(1, NumOfImage) = corr2(SortedGTTable.num, SortedStatTable.num); % OrdCorrPsFM
+OrdCorr(2, NumOfImage) = corr2(SortedGTTable.num, SortedAltRef.num); % OrdCorrAltRef
 
-OrdCorrPsFM(NumOfImage) = corr2(SortedGTTable.num, SortedStatTable.num);
-OrdCorrAltRef(NumOfImage) = corr2(SortedGTTable.num, SortedAltRef.num);
-
-
-PlaineCorrPsFM(NumOfImage) = corr2(ComparizeGTTable.F1_score, StatEvaluationTable.St_F1_score);
-PlaineCorrPsNCC(NumOfImage) = corr2(ComparizeGTTable.CrossCorr, StatEvaluationTable.StCrossCorr);
-PlaineCorrPsPSNR(NumOfImage) = corr2(ComparizeGTTable.PSNR, StatEvaluationTable.StPSNR);
-PlaineCorrPsNRM(NumOfImage) = corr2(ComparizeGTTable.NRM, StatEvaluationTable.StNRM);
+PlaineCorr(1, NumOfImage) = corr2(ComparizeGTTable.F1_score, StatEvaluationTable.St_F1_score);
+PlaineCorr(2, NumOfImage) = corr2(ComparizeGTTable.CrossCorr, StatEvaluationTable.StCrossCorr);
+PlaineCorr(3, NumOfImage) = corr2(ComparizeGTTable.PSNR, StatEvaluationTable.StPSNR);
+PlaineCorr(4, NumOfImage) = corr2(ComparizeGTTable.NRM, StatEvaluationTable.StNRM);
 
 clear NewRefAltArr
 clear TwoDrefAltArr
@@ -175,23 +146,10 @@ fprintf('Case number %d complete\n', NumOfImage);
 fprintf('Time: %02s \n\n', datestr(now, 'HH:MM:SS'));
 end
 
-GetDifference(NumIm, Ps_FM_Distance, Alt_Ref_Distance, EditPS_FM_distance, EditARef_distance);
+GetDifference(NumIm, WordDist, SeqenceCost); %Ps_FM_Distance, Alt_Ref_Distance, EditPS_FM_distance, EditARef_distance);
 % Later - change and pack both (reference dist and PsFm dist) in one array!
 % Like: 
 % WordDist(1, NumOfImage) = EditDistance(Word_Ps_FM, Word_GT_FM);
 % WordDist(2, NumOfImage) = EditDistance(Word_AltRef, Word_GT_FM);
 
-AvgCorrelationOfPsFM = sum(OrdCorrPsFM, 'omitnan') / NumIm;
-AvgCorrCorrAltRefGT = sum(OrdCorrAltRef, 'omitnan') / NumIm;
-fprintf('\n\nAverage correlation of algorithm`s order between order given by\n F-Measure and Pseudo F-Measure: %.4g \n', AvgCorrelationOfPsFM);
-fprintf('Average correlation of algorithm`s order between order given by\n F-Measure and Reference Method: %.4g \n', AvgCorrCorrAltRefGT);
-
-AvgCorrPsFM = sum(PlaineCorrPsFM, 'omitnan') / NumIm;
-AvgCorrPsNCC = sum(PlaineCorrPsNCC, 'omitnan') / NumIm;
-AvgCorrPsPSNR = sum(PlaineCorrPsPSNR, 'omitnan') / NumIm;
-AvgCorrPsNRM = sum(PlaineCorrPsNRM, 'omitnan') / NumIm;
-
-fprintf('\n\nAverage correlation and standad deviation of Pseudo-Metrics and GT-based metrics (between the values):\n\n');
-fprintf('Pseudo F-Measure\tPseudo NCC\t\tPseudo PSNR\t\tPseudo NRM\n');
-fprintf('%.4g\t\t\t\t%.4g\t\t\t%.4g\t\t\t%.4g\n', AvgCorrPsFM, AvgCorrPsNCC, AvgCorrPsPSNR, AvgCorrPsNRM);
-fprintf('%.4g\t\t\t\t%.4g\t\t\t%.4g\t\t\t%.4g\n\n', std(PlaineCorrPsFM), std(PlaineCorrPsNCC), std(PlaineCorrPsPSNR), std(PlaineCorrPsNRM));
+GetCorrelation(NumIm, OrdCorr, PlaineCorr);
