@@ -1,8 +1,7 @@
 function GetCorrelation(NumIm, OrdCorr, PlaineCorr)
-%     PlaineCorrPsNCC, PlaineCorrPsPSNR, PlaineCorrPsNRM)
-% Function that compute and print the correlation between the marks of
-%classifiers given by traditionally-used metrics and new
-%statistically-based pseudo-metrics
+%   Function that compute and print the correlation between the marks of
+%   classifiers given by traditionally-used metrics and new
+%   statistically-based pseudo-metrics
 
 AvgCorrelationOfPsFM = sum(OrdCorr(1,:), 'omitnan') / NumIm;
 AvgCorrCorrAltRefGT = sum(OrdCorr(2,:), 'omitnan') / NumIm;
