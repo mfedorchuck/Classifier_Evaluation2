@@ -1,15 +1,20 @@
-function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage)
+function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage)
 
 %Ten binarization algorithms   
-%   [Names Values] = TENBINCLASSIFIERS(IMAGE) performs 9 local and 1 global 
+%   [Names Values] = TENBINCLASSIFIERS(IMAGE, GROUNDTRUTH) performs 9 local and 1 global 
 %   binarization algorithms on a two-dimensional array IMAGE.
+%
+%   Output:
+%   [TableOfNames] - names of classification algorithms (cell 1D array)
+%   [ArrOfValues] - 3D array with all the classified images
 
+    % Converting current image to the B/W image
     GrayTestImage = rgb2gray(TestImage);
     [N, M] = size(GrayTestImage);
-
+    
     fprintf('Size of current image is %d x %d \n', N, M);
-
-    %1 Binarization By Otsu`s method   
+    
+    %1 Binarization by using Otsu`s method   
     BinarizedByO = imbinarize(GrayTestImage, graythresh(GrayTestImage));  
 
     %2 Binarization by using Sauvola method
@@ -42,10 +47,11 @@ function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage)
     BinarizedByAdaptT2 = imbinarize(GrayTestImage, adaptthresh(GrayTestImage,...
        0.7, 'ForegroundPolarity', 'dark'));
 
-%% ************** Constructor for all the bin. systems*********************
-[TableOfNames, ArrOfValues] = Constructor(BinarizedByWolf, BinarizedByAdaptT, BinarizedBySau,...
-    BinarizedByO, BinarizedByAdaptT2, BinarizedByNiblack, BinarizedByKittler,...
-    BinarizedByBrensen, BinarizedByBradely, BinarizedByGatos);
+    %% ************** Constructor for all the bin. systems*********************
+    [TableOfNames, ArrOfValues] = Constructor(BinarizedByWolf, BinarizedByAdaptT, BinarizedBySau,...
+        BinarizedByO, BinarizedByAdaptT2, BinarizedByNiblack, BinarizedByKittler,...
+        BinarizedByBrensen, BinarizedByBradely, BinarizedByGatos);
 
-%% **************** Displaying of system`s performance  *******************
-% BinDisp(TestImage, GrayTestImage, GTImage, TableOfNames, ArrOfValues);
+    %% **************** Displaying classifier`s performance  *******************
+    % BinDisp(TestImage, GrayTestImage, GTImage, TableOfNames, ArrOfValues);
+end

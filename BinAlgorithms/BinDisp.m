@@ -7,7 +7,7 @@ subplot(3,1,3); imshow(GTImage); title(sprintf('Ground Truth'));
 
 f = 2; sp = 1;
 
-for i = 1:length(ArrOfValues(:,1,1))
+for i = 1:size(ArrOfValues,1)
     figure(f);
     CurrentImage(:,:) = ArrOfValues(i,:,:);
     
