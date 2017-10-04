@@ -1,4 +1,4 @@
-function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage)
+function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage, ShowFirst, ShowAll)
 
 %Ten binarization algorithms   
 %   [Names Values] = TENBINCLASSIFIERS(IMAGE, GROUNDTRUTH) performs 9 local and 1 global 
@@ -53,5 +53,11 @@ function [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage)
         BinarizedByBrensen, BinarizedByBradely, BinarizedByGatos);
 
     %% **************** Displaying classifier`s performance  *******************
-    % BinDisp(TestImage, GrayTestImage, GTImage, TableOfNames, ArrOfValues);
+    if ShowFirst == true && N == 263
+        BinDisp(TestImage, GrayTestImage, GTImage, TableOfNames, ArrOfValues);
+    end
+    if ShowAll == true && N ~= 263
+        BinDisp(TestImage, GrayTestImage, GTImage, TableOfNames, ArrOfValues);
+    end
+    
 end

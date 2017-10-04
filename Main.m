@@ -28,6 +28,11 @@ clear all; close all; clc;
 fprintf('Time: %02s \n', datestr(now, 'HH:MM:SS')); fprintf('\n');
 disp('DIBCO dataset 2009');
 
+% Set 'True' for the follow variables if you need to display binarized
+% images
+ShowFirst = true; 
+ShowAll = false;
+
 % number of images you want to test
 NumIm = 10; %DIBCO09 dataset consist of 10 images - 5 printed and 5 - handwritten
 
@@ -44,7 +49,7 @@ for NumOfImage = 1:NumIm
     TestImage = imread(sprintf('%s%s', ImPath, ImName));
     GTImage = imread(sprintf('%s%s', ImPath, GTName));
 
-    [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage);
+    [TableOfNames, ArrOfValues] = TenBinClassifiers(TestImage, GTImage, ShowFirst, ShowAll);
 
     %% Evaluation metrics 
 
