@@ -20,4 +20,5 @@ calculating (average values through dataset):
 
 <p align="center"> 
   <img src="BinAlgorithms/Out1.png" width="400"/>
+  <img src="BinAlgorithms/Out2.png" width="400"/>
 </p>
